@@ -16,36 +16,30 @@ import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/")
-public class ApiController {
-    Logger logger = LoggerFactory.getLogger(ApiController.class);
-    private final UserService service;
+@RequestMapping("api/auth/")
+public class AuthController {
+    Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final UserService userService;
 
     @Autowired
-    public ApiController(UserService service) {
-        this.service = service;
+    public AuthController(UserService userService) {
+        this.userService = userService;
     }
 
-    @PostMapping("auth/signup")
+    @PostMapping("signup")
     public ResponseEntity<UserDto> signup(@Valid @RequestBody UserDto userDto) {
 
         User user = new User(userDto);
-        service.signup(user);
+        userService.signup(user);
         UserDto resultUserDto = new UserDto(user);
 
         logger.info("Sign up: {}", userDto.getEmail());
         return ResponseEntity.ok(resultUserDto);
     }
 
-    @PostMapping("auth/changepass")
+    @PostMapping("changepass")
     public ResponseEntity<Map<String, String>> changePass(@Valid @RequestBody NewPassword newPassword, @AuthenticationPrincipal UserDetails details) {
         logger.info("Change password: {}", details.getUsername());
-        return ResponseEntity.ok(service.changePassword((User) details, newPassword.getNewPassword()));
-    }
-
-    @GetMapping("empl/payment")
-    public UserDto getPayments(@AuthenticationPrincipal UserDetails details) {
-        logger.info("Get payments: {}", details.getUsername());
-        return new UserDto((User) details);
+        return ResponseEntity.ok(userService.changePassword((User) details, newPassword.getNewPassword()));
     }
 }
