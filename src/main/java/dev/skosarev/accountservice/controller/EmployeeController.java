@@ -7,6 +7,7 @@ import io.micrometer.core.lang.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,7 +32,9 @@ public class EmployeeController {
 
     @GetMapping("payment")
     public ResponseEntity<List<PaymentForOutput>> getPayments(@RequestParam @Nullable String period, @AuthenticationPrincipal UserDetails details) {
-        logger.info("Get payments for period {}: {}", period, details.getUsername());
+        if (details == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This api only for authenticated user");
+        }
 
         List<PaymentForOutput> result = null;
         if (period == null) {
@@ -39,6 +43,7 @@ public class EmployeeController {
             result = List.of(paymentService.getPayment(period, (User) details));
         }
 
+        logger.info("Get payments for period {}: {}", period, details.getUsername());
         return ResponseEntity.ok(result);
     }
 }
