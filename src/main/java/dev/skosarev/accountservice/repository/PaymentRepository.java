@@ -21,4 +21,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     <S extends Payment> S save(S entity);
 
     Payment findByPeriodAndEmployee(Date period, User employee);
+
+    List<Payment> findAllByEmployee(User employee);
 }

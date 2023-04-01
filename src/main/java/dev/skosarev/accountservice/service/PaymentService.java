@@ -1,6 +1,7 @@
 package dev.skosarev.accountservice.service;
 
 import dev.skosarev.accountservice.dto.PaymentDto;
+import dev.skosarev.accountservice.dto.PaymentForOutput;
 import dev.skosarev.accountservice.model.Payment;
 import dev.skosarev.accountservice.model.User;
 import dev.skosarev.accountservice.repository.PaymentRepository;
@@ -12,22 +13,40 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
-    private final SimpleDateFormat formatter = new SimpleDateFormat("MM-yyyy");
+    private final SimpleDateFormat inputFormatter = new SimpleDateFormat("MM-yyyy");
+    private final SimpleDateFormat outputFormatter = new SimpleDateFormat("MMMM-yyyy");
 
     @Autowired
     public PaymentService(PaymentRepository paymentRepository, UserRepository userRepository) {
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
-        formatter.setLenient(false);
+        inputFormatter.setLenient(false);
+    }
+
+    public PaymentForOutput getPayment(String period, User user) {
+        Date datePeriod = convertPeriodToDate(period);
+
+        Payment payment = paymentRepository.findByPeriodAndEmployee(datePeriod, user);
+        String salary = String.format("%d dollar(s) %d cent(s)", payment.getSalary() / 100, payment.getSalary() % 100);
+        return new PaymentForOutput(user.getName(), user.getLastname(), outputFormatter.format(datePeriod), salary);
+    }
+
+    public List<PaymentForOutput> getAllPayments(User user) {
+        List<Payment> paymentList = paymentRepository.findAllByEmployee(user);
+
+        List<PaymentForOutput> result = new ArrayList<>();
+        for (Payment payment : paymentList) {
+            String salary = String.format("%d dollar(s) %d cent(s)", payment.getSalary() / 100, payment.getSalary() % 100);
+            result.add(new PaymentForOutput(user.getName(), user.getLastname(), outputFormatter.format(payment.getPeriod()), salary));
+        }
+
+        return result;
     }
 
     public Map<String, String> saveAllDto(List<PaymentDto> paymentDtos) {
@@ -64,8 +83,12 @@ public class PaymentService {
         if (user.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not exists!");
         }
+        return new Payment(user.get(), convertPeriodToDate(paymentDto.getPeriod()), paymentDto.getSalary());
+    }
+
+    private Date convertPeriodToDate(String period) {
         try {
-            return new Payment(user.get(), formatter.parse(paymentDto.getPeriod()), paymentDto.getSalary());
+            return inputFormatter.parse(period);
         } catch (ParseException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong date!");
         }
