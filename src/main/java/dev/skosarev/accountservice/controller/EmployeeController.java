@@ -36,7 +36,7 @@ public class EmployeeController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This api only for authenticated user");
         }
 
-        List<PaymentForOutput> result = null;
+        List<PaymentForOutput> result;
         if (period == null) {
             result = paymentService.getAllPayments((User) details);
         } else {

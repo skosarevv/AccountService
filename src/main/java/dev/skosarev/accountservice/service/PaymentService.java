@@ -38,7 +38,7 @@ public class PaymentService {
     }
 
     public List<PaymentForOutput> getAllPayments(User user) {
-        List<Payment> paymentList = paymentRepository.findAllByEmployee(user);
+        List<Payment> paymentList = paymentRepository.findAllByEmployeeOrderByPeriodDesc(user);
 
         List<PaymentForOutput> result = new ArrayList<>();
         for (Payment payment : paymentList) {

@@ -66,7 +66,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         return Map.of(
-                "email", user.getEmail(),
+                "email", user.getEmail().toLowerCase(),
                 "status", "The password has been updated successfully");
     }
 
