@@ -40,6 +40,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.REMOVE)
     private List<Payment> payments = new ArrayList<>();
 
+    @Column(name = "account_non_locked")
+    private boolean accountNonLocked = true;
+
+    @Column(name = "failed_attempt")
+    private int failedAttempt = 0;
+
     public User() {
     }
 
@@ -119,6 +125,14 @@ public class User implements UserDetails {
         return email;
     }
 
+    public int getFailedAttempt() {
+        return failedAttempt;
+    }
+
+    public void setFailedAttempt(int failedAttempt) {
+        this.failedAttempt = failedAttempt;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -126,7 +140,11 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return accountNonLocked;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
     }
 
     @Override
@@ -169,6 +187,8 @@ public class User implements UserDetails {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", userGroups=" + userGroups +
+                ", accountNonLocked=" + accountNonLocked +
+                ", failedAttempt=" + failedAttempt +
                 '}';
     }
 }
