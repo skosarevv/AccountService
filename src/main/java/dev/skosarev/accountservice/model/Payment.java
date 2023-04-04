@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "\"SALARY\"", uniqueConstraints = {@UniqueConstraint(columnNames = {"employee", "period"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"employee", "period"})})
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

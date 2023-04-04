@@ -3,7 +3,6 @@ package dev.skosarev.accountservice.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
 
 @Configuration
@@ -38,13 +38,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable().headers().frameOptions().disable() // for Postman, the H2 console
                 .and()
+                .exceptionHandling().accessDeniedHandler(getAccessDeniedHandler())
+                .and()
                 .authorizeRequests() // manage access
-                .mvcMatchers(HttpMethod.POST, "/api/auth/signup").permitAll()
-                .mvcMatchers(HttpMethod.GET, "api/empl/").hasRole("USER")
-                .mvcMatchers(HttpMethod.POST, "api/auth/changepass").hasRole("USER")
-//                .mvcMatchers(HttpMethod.POST, "api/acct/").hasRole("ADMIN")
-                .mvcMatchers(HttpMethod.POST, "api/acct/").permitAll()
-                // other matchers
+                .mvcMatchers("/api/auth/signup").permitAll()
+                .mvcMatchers("/api/auth/changepass").authenticated()
+                .mvcMatchers("/api/empl/payment").hasAnyRole("USER", "ACCOUNTANT")
+                .mvcMatchers("/api/acct/**").hasRole("ACCOUNTANT")
+                .mvcMatchers("/api/admin/**").hasRole("ADMINISTRATOR")
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // no session
@@ -56,5 +57,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         provider.setPasswordEncoder(passwordEncoder);
         provider.setUserDetailsService(userDetailsService);
         return provider;
+    }
+
+    @Bean
+    public AccessDeniedHandler getAccessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
     }
 }

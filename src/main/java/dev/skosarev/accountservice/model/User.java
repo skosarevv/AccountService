@@ -1,46 +1,46 @@
 package dev.skosarev.accountservice.model;
 
-import dev.skosarev.accountservice.dto.UserDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import dev.skosarev.accountservice.dto.UserDto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name = "\"USER\"")
+@Table(name = "user_")
 @JsonPropertyOrder({"id", "name", "lastname", "email"})
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String name;
+
     private String lastname;
+
     private String email;
+
     @JsonIgnore
     private String password;
-    @JsonIgnore
-    private boolean accountNonExpired;
-    @JsonIgnore
-    private boolean accountNonLocked;
-    @JsonIgnore
-    private boolean credentialsNonExpired;
-    @JsonIgnore
-    private boolean enabled;
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<Role> roles;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_groups",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id"))
+    private Set<Group> userGroups = new HashSet<>();
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.REMOVE)
+    private List<Payment> payments = new ArrayList<>();
 
     public User() {
-        this.accountNonExpired = true;
-        this.accountNonLocked = true;
-        this.credentialsNonExpired = true;
-        this.enabled = true;
     }
 
     public User(UserDto dto) {
@@ -48,11 +48,19 @@ public class User implements UserDetails {
         this.name = dto.getName();
         this.lastname = dto.getLastname();
         this.password = dto.getPassword();
+    }
 
-        this.accountNonExpired = true;
-        this.accountNonLocked = true;
-        this.credentialsNonExpired = true;
-        this.enabled = true;
+    public void addGroup(Group group) {
+        userGroups.add(group);
+    }
+
+    public void removeGroup(String role) {
+        for (Group group : userGroups) {
+            if (group.getName().equals(role)) {
+                userGroups.remove(group);
+                break;
+            }
+        }
     }
 
     public Long getId() {
@@ -91,28 +99,12 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public void setAccountNonExpired(boolean accountNonExpired) {
-        this.accountNonExpired = accountNonExpired;
+    public Set<Group> getUserGroups() {
+        return userGroups;
     }
 
-    public void setAccountNonLocked(boolean accountNonLocked) {
-        this.accountNonLocked = accountNonLocked;
-    }
-
-    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-        this.credentialsNonExpired = credentialsNonExpired;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setUserGroups(Set<Group> userGroups) {
+        this.userGroups = userGroups;
     }
 
     @Override
@@ -129,34 +121,42 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return accountNonExpired;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return accountNonLocked;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return true;
     }
 
-    public void grantAuthority(Role authority) {
-        if (roles == null) roles = new ArrayList<>();
-        roles.add(authority);
+    public boolean containsRole(String roleName) {
+        for (Group role : userGroups) {
+            if (role.getName().equals(roleName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     @JsonIgnore
     public List<GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role.toString())));
+        Set<Group> userGroups = getUserGroups();
+        List<GrantedAuthority> authorities = new ArrayList<>(userGroups.size());
+        for (Group userGroup : userGroups) {
+            authorities.add(new SimpleGrantedAuthority(userGroup.getName()));
+        }
+
         return authorities;
     }
 
@@ -168,11 +168,7 @@ public class User implements UserDetails {
                 ", lastname='" + lastname + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", accountNonExpired=" + accountNonExpired +
-                ", accountNonLocked=" + accountNonLocked +
-                ", credentialsNonExpired=" + credentialsNonExpired +
-                ", enabled=" + enabled +
-                ", roles=" + roles +
+                ", userGroups=" + userGroups +
                 '}';
     }
 }

@@ -30,7 +30,7 @@ public class AuthController {
     public ResponseEntity<UserDto> signup(@Valid @RequestBody UserDto userDto) {
 
         User user = new User(userDto);
-        userService.signup(user);
+        userService.register(user);
         UserDto resultUserDto = new UserDto(user);
 
         logger.info("Sign up: {}", userDto.getEmail());
