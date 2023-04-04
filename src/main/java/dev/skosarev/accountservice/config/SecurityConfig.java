@@ -46,6 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/api/empl/payment").hasAnyRole("USER", "ACCOUNTANT")
                 .mvcMatchers("/api/acct/**").hasRole("ACCOUNTANT")
                 .mvcMatchers("/api/admin/**").hasRole("ADMINISTRATOR")
+                .mvcMatchers("/api/security/**").hasRole("AUDITOR")
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // no session
