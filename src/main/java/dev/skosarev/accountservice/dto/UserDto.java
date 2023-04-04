@@ -41,7 +41,7 @@ public class UserDto {
         this.id = user.getId();
         this.name = user.getName();
         this.lastname = user.getLastname();
-        this.email = user.getEmail();
+        this.email = user.getEmail().toLowerCase();
         this.password = user.getPassword();
         this.roles = new ArrayList<>(user.getUserGroups());
     }
@@ -88,7 +88,7 @@ public class UserDto {
 
     @JsonProperty(value = "roles", access = JsonProperty.Access.READ_ONLY)
     public List<String> getRoles() {
-        return roles.stream().map(Group::getName).collect(Collectors.toList());
+        return roles.stream().map(Group::getName).sorted().collect(Collectors.toList());
     }
 
     @Override

@@ -22,8 +22,12 @@ public class AdminRestController {
     }
 
     @GetMapping("user")
-    public ResponseEntity<List<UserDto>> getUser() {
-        return ResponseEntity.ok(userService.getAllDto());
+    public ResponseEntity<?> getUser() {
+        List<UserDto> userDtos = userService.getAllDto();
+        if (userDtos.size() == 1) {
+            return ResponseEntity.ok(userDtos.get(0));
+        }
+        return ResponseEntity.ok(userDtos);
     }
 
     @DeleteMapping("user/{email}")

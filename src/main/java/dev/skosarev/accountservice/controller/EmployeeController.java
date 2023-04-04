@@ -31,7 +31,7 @@ public class EmployeeController {
     }
 
     @GetMapping("payment")
-    public ResponseEntity<List<PaymentForOutput>> getPayments(@RequestParam @Nullable String period, @AuthenticationPrincipal UserDetails details) {
+    public ResponseEntity<?> getPayments(@RequestParam @Nullable String period, @AuthenticationPrincipal UserDetails details) {
         if (details == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This api only for authenticated user");
         }
@@ -44,6 +44,9 @@ public class EmployeeController {
         }
 
         logger.info("Get payments for period {}: {}", period, details.getUsername());
+        if (result.size() == 1) {
+            return ResponseEntity.ok(result.get(0));
+        }
         return ResponseEntity.ok(result);
     }
 }

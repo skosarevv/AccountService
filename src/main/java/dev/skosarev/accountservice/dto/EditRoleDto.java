@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 
 public class EditRoleDto {
     @JsonProperty("user")
-    @Pattern(regexp = ".+@acme\\.com", message = "Email should ends with @acme.com")
+//    @Pattern(regexp = ".+@acme\\.com", message = "Email should ends with @acme.com")
     @Email
     private String email;
 

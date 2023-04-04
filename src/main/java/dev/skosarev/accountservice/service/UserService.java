@@ -81,7 +81,7 @@ public class UserService {
         }
         User user = userOptional.get();
         if (operation.equals("REMOVE") && !user.containsRole("ROLE_" + role)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user does not have a role!");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The user does not have a role!");
         }
         if (user.getUserGroups().size() == 1 && operation.equals("REMOVE")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The user must have at least one role!");
