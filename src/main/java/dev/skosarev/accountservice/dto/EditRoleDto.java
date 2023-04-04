@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 
 public class EditRoleDto {
     @JsonProperty("user")
-//    @Pattern(regexp = ".+@acme\\.com", message = "Email should ends with @acme.com")
     @Email
     private String email;
 
