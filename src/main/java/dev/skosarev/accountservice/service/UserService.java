@@ -126,6 +126,7 @@ public class UserService {
                     String.format("Lock user %s", editAccessDto.getEmail()), "/api/admin/user/access");
         } else {
             user.setAccountNonLocked(true);
+            user.setFailedAttempt(0);
             logService.addEvent(SecurityAction.UNLOCK_USER, adminEmail,
                     String.format("Unlock user %s", editAccessDto.getEmail()), "/api/admin/user/access");
         }
