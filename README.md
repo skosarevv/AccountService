@@ -1,10 +1,10 @@
 # Account Service
 
-### Description
+## Description
 
 [Hyperskill project](https://hyperskill.org/projects/217) with a focus on Spring Security
 
-### Main features
+## Main features
 
 - Authentication
 - Authorization
@@ -14,22 +14,37 @@
 - Role model
 - Spring Beans, Components and Configurations
 
-### Role model
+## Role model
 
 |                           | Anonymous | User | Accountant | Administrator | Auditor |
-|---------------------------|-----------|------|------------|---------------|---------|
-| POST api/auth/signup      | +         | +    | +          | +             | +       |
-| POST api/auth/changepass  | -         | +    | +          | +             | -       |
-| GET api/empl/payment      | -         | +    | +          | -             | -       |
-| POST api/acct/payments    | -         | -    | +          | -             | -       |
-| PUT api/acct/payments     | -         | -    | +          | -             | -       |
-| GET api/admin/user        | -         | -    | -          | +             | -       |
-| DELETE api/admin/user     | -         | -    | -          | +             | -       |
-| PUT api/admin/user/role   | -         | -    | -          | +             | -       |
-| PUT api/admin/user/access | -         | -    | -          | +             | -       |
-| GET api/security/events   | -         | -    | -          | -             | +       |
+|---------------------------|:---------:|:----:|:----------:|:-------------:|:-------:|
+| POST api/auth/signup      |     +     |  +   |     +      |       +       |    +    |
+| POST api/auth/changepass  |     -     |  +   |     +      |       +       |    -    |
+| GET api/empl/payment      |     -     |  +   |     +      |       -       |    -    |
+| POST api/acct/payments    |     -     |  -   |     +      |       -       |    -    |
+| PUT api/acct/payments     |     -     |  -   |     +      |       -       |    -    |
+| GET api/admin/user        |     -     |  -   |     -      |       +       |    -    |
+| DELETE api/admin/user     |     -     |  -   |     -      |       +       |    -    |
+| PUT api/admin/user/role   |     -     |  -   |     -      |       +       |    -    |
+| PUT api/admin/user/access |     -     |  -   |     -      |       +       |    -    |
+| GET api/security/events   |     -     |  -   |     -      |       -       |    +    |
 
-### Installation
+## Information security events
+
+| Description                                                  | Event Name        |
+|--------------------------------------------------------------|-------------------|
+| A user has been successfully registered                      | `CREATE_USER`     |
+| A user has changed the password successfully                 | `CHANGE_PASSWORD` |
+| A user is trying to access a resource without access rights  | `ACCESS_DENIED`   |
+| Failed authentication                                        | `LOGIN_FAILED`    |
+| A role is granted to a user                                  | `GRANT_ROLE`      |
+| A role has been revoked                                      | `REMOVE_ROLE`     |
+| The Administrator has locked the user                        | `LOCK_USER`       |
+| The Administrator has unlocked a user                        | `UNLOCK_USER`     |
+| The Administrator has deleted a user                         | `DELETE_USER`     |
+| A user has been blocked on suspicion of a brute force attack | `BRUTE_FORCE`     |
+
+## Installation
 
 To get a local copy up and running follow these simple example steps.
 
